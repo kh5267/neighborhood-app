@@ -1,0 +1,133 @@
+
+hr {
+  background-color: black;
+  height: 2px;
+  width: 100%;
+  text-align: left;
+  margin-left: 0;
+  border-left: 0;
+}
+
+.marker-container {
+  position: absolute;
+  left: 0;
+  background-color: rgb(179, 176, 176);
+  width: 20%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.neighborhood-title {
+  height: 8%;
+  width: 90%;
+  font-size: 35px;
+  text-align: left;
+  padding-left: 2px;
+  padding-bottom: 10px;
+  padding-top: 5px;
+  color: rgb(19, 46, 105);
+}
+
+button {
+  border: 0;
+  background-color: rgb(179, 176, 176);
+  width: 95%;
+  font-size: 22px;
+  text-align: left;
+  padding-bottom: 10px;
+}
+
+.location-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  padding-left: 10px;
+  height: 45%;
+}
+
+.filter-input-container {
+  height: 6%;
+  width: 90%;
+  padding-left: 2px;
+  padding-bottom: 25px;
+  text-align: left;
+}
+
+.filter-input {
+  height: 100%;
+  width: 100%;
+  font-size: 20px;
+}
+
+.detail-container {
+  width: 95%;
+  height: 33%;
+  position: fixed;
+  text-align: left;
+  bottom: 0px;
+  padding-left: 5px;
+  font-size: 22px;
+}
+
+@media screen and (max-width: 500px) {
+  .neighborhood-title {
+    font-size: 18px;
+    height: 5%;
+  }
+  button, .detail-container {
+    font-size: 11px;
+  }
+  .location-container {
+    padding-left: 2px;
+  }
+  .filter-input-container {
+    height: 5%;
+  }
+  .filter-input {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 890px) {
+  .marker-container {
+    width: 40%;
+  }
+  #neighborhood {
+    width: 60% !important;
+  }
+}
+
+@media screen and (min-width: 501px) and (max-width: 890px) {
+  .marker-container {
+    width: 40%;
+  }
+  button, .detail-container {
+    font-size: 13px;
+  }
+  .neighborhood-title {
+    font-size: 20px;
+  }
+  .filter-input {
+    font-size: 14px;
+  }
+  #neighborhood {
+    width: 60% !important;
+  }
+}
+
+@media screen and (min-width: 891px) and (max-width: 1200px) {
+  .neighborhood-title {
+    font-size: 25px;
+  }
+  button, .detail-container {
+    font-size: 17px;
+  }
+}
+
+@media screen and (max-height: 810px) and (min-width: 501px) {
+  button, .detail-container {
+    font-size: 13px;
+  }
+}
