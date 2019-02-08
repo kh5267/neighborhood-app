@@ -6,22 +6,22 @@ class Map extends Component {
         mapLoaded: false,
         filter: '',
         locations: [
-            {name: 'Mom\'s House', latlng: {lat: 43.3007, lng: -87.9874}, address: '', detail: '', marker: null},
-            {name: 'Amy\'s Candy Kitchen', latlng: {lat: 43.2967, lng: -87.9877}, address: 'W62N579 Washington Ave', detail: '', marker: null},
-            {name: 'Cedar Creek Winery', latlng: {lat: 43.3014, lng: -87.9888}, address: '', detail: '', marker: null},
-            {name: 'Rivoli Theater', latlng: {lat: 43.2962, lng: -87.9876}, address: '', detail: '', marker: null},
-            {name: 'Cedarburg Coffee Roastery', latlng: {lat: 43.2975, lng: -87.9882}, address: '', detail:'', marker: null},
-            {name: 'Fiddleheads Coffee', latlng: {lat: 43.2976, lng: -87.9881}, address: '', detail: '', marker: null},
-            {name: 'Penzey\'s Spices', latlng: {lat: 43.2976, lng: -87.9875}, address:'', detail: '', marker: null},
-            {name: 'Tomaso\'s', latlng: {lat: 43.3007, lng: -87.9889}, address:'', detail: '', marker: null},
-            {name: 'Cedarburg Art Museum', latlng: {lat: 43.3, lng: -87.9896}, address: '', detail: '', marker: null},
-            {name: 'Java House', latlng: {lat: 43.2994, lng: -87.9888}, address:'', detail: '', marker: null}
+            {name: 'Mom\'s House', latlng: {lat: 43.3007, lng: -87.9874}, address: 'W62N688 Riveredge Dr', detail: 'Mom\'s House', marker: null},
+            {name: 'Amy\'s Candy Kitchen', latlng: {lat: 43.2967, lng: -87.9877}, address: 'W62N579 Washington Ave', detail: 'Amy\'s Candy Kitchen', marker: null},
+            {name: 'Cedar Creek Winery', latlng: {lat: 43.3014, lng: -87.9888}, address: 'N70W6340 Bridge Rd', detail: 'Cedar Creek Winery', marker: null},
+            {name: 'Rivoli Theater', latlng: {lat: 43.2962, lng: -87.9876}, address: 'W62N567 Washington Ave', detail: 'Rivoli Theater', marker: null},
+            {name: 'Cedarburg Coffee Roastery', latlng: {lat: 43.2975, lng: -87.9882}, address: 'W62N603 Washington Ave', detail:'Cedarburg Coffee Roastery', marker: null},
+            {name: 'Fiddleheads Coffee', latlng: {lat: 43.2976, lng: -87.9881}, address: 'W62N605 Washington Ave', detail: 'Fiddleheads Coffee', marker: null},
+            {name: 'Penzey\'s Spices', latlng: {lat: 43.2976, lng: -87.9875}, address:'W62N604 Washington Ave', detail: 'Penzey\'s Spices', marker: null},
+            {name: 'Tomaso\'s', latlng: {lat: 43.3007, lng: -87.9889}, address:'W63N688 Washington Avenue', detail: 'Tomaso\'s', marker: null},
+            {name: 'Cedarburg Art Museum', latlng: {lat: 43.3, lng: -87.9896}, address: 'W63N675 Washington Ave', detail: 'Cedarburg Art Museum', marker: null},
+            {name: 'Java House', latlng: {lat: 43.2994, lng: -87.9888}, address:'W63N653 Washington Ave', detail: 'Java House', marker: null}
         ],
         showingLocations: [],
-        markers: [],
         map: null
     }
 
+    //Update the location list based on a change in the entered filter string
     updateFilter(filter) {
         if (filter) {
             const match = new RegExp(EscapeRegExp(filter, 'i'))
@@ -35,6 +35,7 @@ class Map extends Component {
         this.setState({filter})
     }
 
+    //Update which markers are visible based on the entered filter string
     updateMarkers(matchedLocations) {
         this.state.locations.map(location => {
             location.marker.setVisible(false)
@@ -62,6 +63,7 @@ class Map extends Component {
     }
     
     componentDidUpdate() {
+        //Load the map and create the markers only 1 time
         if ((this.state.mapLoaded) && (this.state.map === null)) {
             var map = new window.google.maps.Map(document.getElementById('neighborhood'), {
                 center: {lat: 43.2994, lng: -87.9884231},
@@ -75,36 +77,41 @@ class Map extends Component {
                         map: map,
                         title: location.name
                     });
+                    //Find matching businesses at Yelp
                     fetch(`https://api.yelp.com/v3/businesses/matches?name=${location.name}&address1=${location.address}&city=Cedarburg&state=WI&country=US`, {
                         method: 'GET',
-                        mode: 'no-cors',
+                        //mode: 'no-cors',
                         headers: {
                             'Authorization': 'Bearer wzDYtdVDfqlygupomw4fwYxWkA7NlAsf1BH3wfxh3jvO8Cz8ahRSH1w7Dl5SoclwN4AJ9nxiGOBgRgcO0f4YVLdxsSbEp2YzoWxOEbBZUCjEsWQ421CrzdbdrHFPXHYx', 
                             'Content-Type': 'application/json'
                         }
                     })
-                    //.then(res => res.json())
+                    .then(res => {return res.json()})
                     .then(function(data) {
+                        //If matching businesses are found, query for reviews
                         if (data.length > 0) {
-                            var id = data[0].id
+                            var id = data.businesses[0].id
                             fetch(`https://api.yelp.com/v3/businesses/${id}/reviews`, {
                                 method: 'GET',
-                                mode: 'no-cors',
+                                //mode: 'no-cors',
                                 headers: new Headers({
                                     'Authorization': 'Bearer wzDYtdVDfqlygupomw4fwYxWkA7NlAsf1BH3wfxh3jvO8Cz8ahRSH1w7Dl5SoclwN4AJ9nxiGOBgRgcO0f4YVLdxsSbEp2YzoWxOEbBZUCjEsWQ421CrzdbdrHFPXHYx', 
                                     'Content-Type': 'application/json'
                                 })
                             })
                             .then(res1 => location.detail = res1.json())
+                            .catch(function(error) {
+                                console.log(error)
+                            })
                         }
                     })
                     .catch(function(error) {
-                        console.log(error);
+                        console.log(error)
                     })
                     marker.addListener('click', function() {
                         document.getElementsByClassName('detail-container')[0].innerHTML = location.detail
-                    });
-                    location.marker = marker;
+                    })
+                    location.marker = marker
                     return location
                 })
             })
@@ -113,10 +120,11 @@ class Map extends Component {
         }
     }
 
+    //Populate the selected location's details and bounce it's marker twice
     showLocation(button) {
         this.state.showingLocations.map(location => {
             if (location.marker.title === button.innerHTML) {
-                document.getElementsByClassName('detail-container')[0].innerHTML = location.name
+                document.getElementsByClassName('detail-container')[0].innerHTML = location.detail
                 location.marker.setAnimation(window.google.maps.Animation.BOUNCE)
                 setTimeout(function(){ location.marker.setAnimation(null); }, 1400)
             }
