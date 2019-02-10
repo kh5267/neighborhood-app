@@ -47,21 +47,27 @@ class Map extends Component {
         })
     }
 
-    //Yelp key: wzDYtdVDfqlygupomw4fwYxWkA7NlAsf1BH3wfxh3jvO8Cz8ahRSH1w7Dl5SoclwN4AJ9nxiGOBgRgcO0f4YVLdxsSbEp2YzoWxOEbBZUCjEsWQ421CrzdbdrHFPXHYx
-    //Yelp client ID: Y-7rnYtiTgXR01V02AgvDQ
-
     //The 'load' listener idea for the map came from https://stackoverflow.com/questions/48493960/using-google-map-in-react-component - Michael Yurin
     componentDidMount() {
-        const script = document.createElement('script');
+        var script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDbfFqK-dDZbL3htfXi-jQIh7_vrUzusLU&v=3`;
+        script.onerror = function(){window.alert('Map failed to load. Please refresh the page to try again.')};
         script.async = true;
         script.defer = true;
         script.addEventListener('load', () => {
             this.setState({ mapLoaded: true });
         });
         document.body.appendChild(script);
+
+        script = document.createElement('script');
+        script.src = 'jquery-3.3.1.min.js'
+        document.body.appendChild(script);
     }
     
+
+    //Foursquare client ID: EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH
+    //Foursquare client Secret: HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA
+
     componentDidUpdate() {
         //Load the map and create the markers only 1 time
         if ((this.state.mapLoaded) && (this.state.map === null)) {
@@ -70,6 +76,16 @@ class Map extends Component {
                 zoom: 16,
                 clickableIcons: false
             })
+
+            //Get current date for Foursquare v parameter
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+            if (dd < 10) {dd = '0' + dd}
+            if (mm < 10) {mm = '0' + mm}
+            today = yyyy + mm + dd;
+
             this.setState({locations:
                 this.state.locations.map(location => {
                     var marker = new window.google.maps.Marker({
@@ -77,34 +93,16 @@ class Map extends Component {
                         map: map,
                         title: location.name
                     });
-                    //Find matching businesses at Yelp
-                    fetch(`https://api.yelp.com/v3/businesses/matches?name=${location.name}&address1=${location.address}&city=Cedarburg&state=WI&country=US`, {
+                    //Find venue id
+                    fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA?v=${today}`, {
                         method: 'GET',
-                        //mode: 'no-cors',
                         headers: {
-                            'Authorization': 'Bearer wzDYtdVDfqlygupomw4fwYxWkA7NlAsf1BH3wfxh3jvO8Cz8ahRSH1w7Dl5SoclwN4AJ9nxiGOBgRgcO0f4YVLdxsSbEp2YzoWxOEbBZUCjEsWQ421CrzdbdrHFPXHYx', 
-                            'Content-Type': 'application/json'
+                            'Access-Control-Allow-Origin': '*'
                         }
                     })
-                    .then(res => {return res.json()})
-                    .then(function(data) {
-                        //If matching businesses are found, query for reviews
-                        if (data.length > 0) {
-                            var id = data.businesses[0].id
-                            fetch(`https://api.yelp.com/v3/businesses/${id}/reviews`, {
-                                method: 'GET',
-                                //mode: 'no-cors',
-                                headers: new Headers({
-                                    'Authorization': 'Bearer wzDYtdVDfqlygupomw4fwYxWkA7NlAsf1BH3wfxh3jvO8Cz8ahRSH1w7Dl5SoclwN4AJ9nxiGOBgRgcO0f4YVLdxsSbEp2YzoWxOEbBZUCjEsWQ421CrzdbdrHFPXHYx', 
-                                    'Content-Type': 'application/json'
-                                })
-                            })
-                            .then(res1 => location.detail = res1.json())
-                            .catch(function(error) {
-                                console.log(error)
-                            })
-                        }
-                    })
+                    .then(res => {console.log(res)})   //;return res.json()})
+                    //.then(res => {
+                    //})
                     .catch(function(error) {
                         console.log(error)
                     })
