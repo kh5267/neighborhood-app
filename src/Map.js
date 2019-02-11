@@ -24,7 +24,7 @@ class Map extends Component {
     //Update the location list based on a change in the entered filter string
     updateFilter(filter) {
         if (filter) {
-            const match = new RegExp(EscapeRegExp(filter, 'i'))
+            const match = new RegExp(EscapeRegExp(filter), 'i')
             const matchedLocations = this.state.locations.filter((location) => match.test(location.name))
             this.setState({showingLocations: matchedLocations})
             this.updateMarkers(matchedLocations)
@@ -58,10 +58,6 @@ class Map extends Component {
             this.setState({ mapLoaded: true });
         });
         document.body.appendChild(script);
-
-        script = document.createElement('script');
-        script.src = 'jquery-3.3.1.min.js'
-        document.body.appendChild(script);
     }
     
 
@@ -82,8 +78,8 @@ class Map extends Component {
             var dd = today.getDate();
             var mm = today.getMonth() + 1;
             var yyyy = today.getFullYear();
-            if (dd < 10) {dd = '0' + dd}
-            if (mm < 10) {mm = '0' + mm}
+            if (dd < 10) {dd = '0' + dd};
+            if (mm < 10) {mm = '0' + mm};
             today = yyyy + mm + dd;
 
             this.setState({locations:
@@ -96,13 +92,20 @@ class Map extends Component {
                     //Find venue id
                     fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA?v=${today}`, {
                         method: 'GET',
-                        headers: {
-                            'Access-Control-Allow-Origin': '*'
-                        }
+                        mode: 'no-cors',
+                        headers: new Headers({
+                            'Content-Type': 'application/json'
+                        })
                     })
-                    .then(res => {console.log(res)})   //;return res.json()})
-                    //.then(res => {
-                    //})
+                    .then(res => {
+                        if (!res.ok) {
+                            throw Error(res.statusText);
+                        }
+                        return res.json()
+                    })
+                    .then(res => {
+                        console.log(res)
+                    })
                     .catch(function(error) {
                         console.log(error)
                     })
