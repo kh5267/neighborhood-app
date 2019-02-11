@@ -90,12 +90,12 @@ class Map extends Component {
                         title: location.name
                     });
                     //Find venue id
-                    fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA?v=${today}`, {
+                    fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA&v=${today}`, {
                         method: 'GET',
                         mode: 'no-cors',
-                        headers: new Headers({
+                        /*headers: new Headers({
                             'Content-Type': 'application/json'
-                        })
+                        })*/
                     })
                     .then(res => {
                         if (!res.ok) {
@@ -160,7 +160,7 @@ class Map extends Component {
                         ))}
                     </div>
                     <hr></hr>
-                    <div className='detail-container'>Details from Yelp</div>
+                    <div className='detail-container'>Details from Foursquare</div>
                 </div>
                 <div id='neighborhood' style={style}></div>
             </div>
