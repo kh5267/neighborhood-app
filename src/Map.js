@@ -93,19 +93,17 @@ class Map extends Component {
                     fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA&v=${today}`, {
                         method: 'GET',
                         mode: 'no-cors',
-                        /*headers: new Headers({
+                        headers: new Headers({
                             'Content-Type': 'application/json'
-                        })*/
+                        })
                     })
                     .then(res => {
                         if (!res.ok) {
-                            throw Error(res.statusText);
+                            throw Error(res.statusText)
                         }
                         return res.json()
                     })
-                    .then(res => {
-                        console.log(res)
-                    })
+                    .then(data => data.response.groups[0].items)
                     .catch(function(error) {
                         console.log(error)
                     })
