@@ -98,9 +98,7 @@ class Map extends Component {
                         })
                     })
                     .then(res => {
-                        if (!res.ok) {
-                            throw Error(res.statusText)
-                        }
+                        console.log(res);
                         return res.json()
                     })
                     .then(data => data.response.groups[0].items)
