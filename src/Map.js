@@ -97,7 +97,7 @@ class Map extends Component {
                           var phone = (venue.contact.formattedPhone === undefined) ? '': venue.contact.formattedPhone;
                           var address = (venue.location.address === undefined) ? '': venue.location.address;
                           var url = (venue.url === undefined) ? '': venue.url;
-                          location.detail = 'Category: ' + venue.categories[0].name + '<p>Phone: ' + phone + '</p><p>Address: ' + address + '</p><p>Web: ' + url + '</p>';
+                          location.detail = 'Category:' + venue.categories[0].name + '<p>Phone: ' + phone + '</p><p>Address:</br>' + address + '</p><p>Website:</br>' + url + '</p>';
                         }
                       }
                     }).catch((error) => {
@@ -130,7 +130,7 @@ class Map extends Component {
 
     render() {
         const style = {
-            width: '80vw',
+            width: '75vw',
             height: '100vh',
             position: 'absolute',
             right: 0
