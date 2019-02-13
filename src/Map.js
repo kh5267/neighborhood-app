@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
 import EscapeRegExp from 'escape-string-regexp'
+import Axios from 'axios'
 
 class Map extends Component {
     state = {
         mapLoaded: false,
         filter: '',
         locations: [
-            {name: 'Mom\'s House', latlng: {lat: 43.3007, lng: -87.9874}, address: 'W62N688 Riveredge Dr', detail: 'Mom\'s House', marker: null},
-            {name: 'Amy\'s Candy Kitchen', latlng: {lat: 43.2967, lng: -87.9877}, address: 'W62N579 Washington Ave', detail: 'Amy\'s Candy Kitchen', marker: null},
-            {name: 'Cedar Creek Winery', latlng: {lat: 43.3014, lng: -87.9888}, address: 'N70W6340 Bridge Rd', detail: 'Cedar Creek Winery', marker: null},
-            {name: 'Rivoli Theater', latlng: {lat: 43.2962, lng: -87.9876}, address: 'W62N567 Washington Ave', detail: 'Rivoli Theater', marker: null},
-            {name: 'Cedarburg Coffee Roastery', latlng: {lat: 43.2975, lng: -87.9882}, address: 'W62N603 Washington Ave', detail:'Cedarburg Coffee Roastery', marker: null},
-            {name: 'Fiddleheads Coffee', latlng: {lat: 43.2976, lng: -87.9881}, address: 'W62N605 Washington Ave', detail: 'Fiddleheads Coffee', marker: null},
-            {name: 'Penzey\'s Spices', latlng: {lat: 43.2976, lng: -87.9875}, address:'W62N604 Washington Ave', detail: 'Penzey\'s Spices', marker: null},
-            {name: 'Tomaso\'s', latlng: {lat: 43.3007, lng: -87.9889}, address:'W63N688 Washington Avenue', detail: 'Tomaso\'s', marker: null},
-            {name: 'Cedarburg Art Museum', latlng: {lat: 43.3, lng: -87.9896}, address: 'W63N675 Washington Ave', detail: 'Cedarburg Art Museum', marker: null},
-            {name: 'Java House', latlng: {lat: 43.2994, lng: -87.9888}, address:'W63N653 Washington Ave', detail: 'Java House', marker: null}
+            {name: 'Mom\'s House', latlng: {lat: 43.3007, lng: -87.9874}, address: 'W62N688 Riveredge Dr', detail: 'Mom\'s House', marker: null, id: ''},
+            {name: 'Amy\'s Candy Kitchen', latlng: {lat: 43.2967, lng: -87.9877}, address: 'W62N579 Washington Ave', detail: 'Amy\'s Candy Kitchen', marker: null, id: '4d3f572746775481f4c34df4'},
+            {name: 'Cedar Creek Winery', latlng: {lat: 43.3014, lng: -87.9888}, address: 'N70W6340 Bridge Rd', detail: 'Cedar Creek Winery', marker: null, id: '4dc5b87a2271f270513516f3'},
+            {name: 'Rivoli Theater', latlng: {lat: 43.2962, lng: -87.9876}, address: 'W62N567 Washington Ave', detail: 'Rivoli Theater', marker: null, id: '4b5129fcf964a5207e4527e3'},
+            {name: 'Cedarburg Coffee Roastery', latlng: {lat: 43.2975, lng: -87.9882}, address: 'W62N603 Washington Ave', detail:'Cedarburg Coffee Roastery', marker: null, id: '4b11bd0ef964a5207f8323e3'},
+            {name: 'Fiddleheads Coffee', latlng: {lat: 43.2976, lng: -87.9881}, address: 'W62N605 Washington Ave', detail: 'Fiddleheads Coffee', marker: null, id: '4bd313d0046076b056157571'},
+            {name: 'Penzey\'s Spices', latlng: {lat: 43.2976, lng: -87.9875}, address:'W62N604 Washington Ave', detail: 'Penzey\'s Spices', marker: null, id: '50410d5ee4b00690ba1607c5'},
+            {name: 'Tomaso\'s', latlng: {lat: 43.3007, lng: -87.9889}, address:'W63N688 Washington Avenue', detail: 'Tomaso\'s', marker: null, id: '4b6dcbb0f964a52094902ce3'},
+            {name: 'Cedarburg Art Museum', latlng: {lat: 43.3, lng: -87.9896}, address: 'W63N675 Washington Ave', detail: 'Cedarburg Art Museum', marker: null, id: '5298eb8e498e23d3c660cabe'},
+            {name: 'Java House', latlng: {lat: 43.2994, lng: -87.9888}, address:'W63N653 Washington Ave', detail: 'Java House', marker: null, id: '4b8a7777f964a520fc6d32e3'}
         ],
         showingLocations: [],
         map: null
@@ -73,15 +74,6 @@ class Map extends Component {
                 clickableIcons: false
             })
 
-            //Get current date for Foursquare v parameter
-            var today = new Date();
-            var dd = today.getDate();
-            var mm = today.getMonth() + 1;
-            var yyyy = today.getFullYear();
-            if (dd < 10) {dd = '0' + dd};
-            if (mm < 10) {mm = '0' + mm};
-            today = yyyy + mm + dd;
-
             this.setState({locations:
                 this.state.locations.map(location => {
                     var marker = new window.google.maps.Marker({
@@ -89,22 +81,29 @@ class Map extends Component {
                         map: map,
                         title: location.name
                     });
-                    //Find venue id
-                    fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.latlng.lat},${location.latlng.lng}&client_id=EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH&client_secret=HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA&v=${today}`, {
-                        method: 'GET',
-                        mode: 'no-cors',
-                        headers: new Headers({
-                            'Content-Type': 'application/json'
-                        })
-                    })
-                    .then(res => {
-                        console.log(res);
-                        return res.json()
-                    })
-                    .then(data => data.response.groups[0].items)
-                    .catch(function(error) {
-                        console.log(error)
-                    })
+
+                    //Pull the location details from the Foursquare API - default to the location name if the API request fails
+                    Axios.get('https://api.foursquare.com/v2/venues/' + location.id, {
+                      params: {
+                        client_id: 'EAZQFJ5KGSFIPLJUVAPC1SK50YXUZVBRSFL3413M4FR3N1QH',
+                        client_secret: 'HOJMM5F2BEY0F3P4R24IVYRSEHK1UO3OL2G4QX424G04VVWA',
+                        v: 20190212
+                      }
+                    }).then((response) => {
+                      if (response.data.meta.code === 200) {
+                        if (response.data.response.venue !== undefined) {
+                          let venue = response.data.response.venue;
+                          console.log(venue);
+                          var phone = (venue.contact.formattedPhone === undefined) ? '': venue.contact.formattedPhone;
+                          var address = (venue.location.address === undefined) ? '': venue.location.address;
+                          var url = (venue.url === undefined) ? '': venue.url;
+                          location.detail = 'Category: ' + venue.categories[0].name + '<p>Phone: ' + phone + '</p><p>Address: ' + address + '</p><p>Web: ' + url + '</p>';
+                        }
+                      }
+                    }).catch((error) => {
+                      console.log(error)
+                    });
+
                     marker.addListener('click', function() {
                         document.getElementsByClassName('detail-container')[0].innerHTML = location.detail
                     })
@@ -156,7 +155,7 @@ class Map extends Component {
                         ))}
                     </div>
                     <hr></hr>
-                    <div className='detail-container'>Details from Foursquare</div>
+                    <div className='detail-container'></div>
                 </div>
                 <div id='neighborhood' style={style}></div>
             </div>
